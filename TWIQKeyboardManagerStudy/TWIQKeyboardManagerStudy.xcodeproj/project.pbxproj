@@ -1,0 +1,599 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4540F55EFBDBAF68298F9314 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B1C5E11B1102C9CC34B2AE18 /* libPods.a */; };
+		EB69EC691C7C39060083DFD7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EB69EC681C7C39060083DFD7 /* main.m */; };
+		EB69EC6C1C7C39060083DFD7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EB69EC6B1C7C39060083DFD7 /* AppDelegate.m */; };
+		EB69EC6F1C7C39060083DFD7 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB69EC6E1C7C39060083DFD7 /* ViewController.m */; };
+		EB69EC721C7C39060083DFD7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB69EC701C7C39060083DFD7 /* Main.storyboard */; };
+		EB69EC741C7C39060083DFD7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB69EC731C7C39060083DFD7 /* Assets.xcassets */; };
+		EB69EC771C7C39060083DFD7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB69EC751C7C39060083DFD7 /* LaunchScreen.storyboard */; };
+		EB69EC821C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EB69EC811C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.m */; };
+		EB69EC8D1C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = EB69EC8C1C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EB69EC7E1C7C39060083DFD7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EB69EC5C1C7C39060083DFD7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EB69EC631C7C39060083DFD7;
+			remoteInfo = TWIQKeyboardManagerStudy;
+		};
+		EB69EC891C7C39060083DFD7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EB69EC5C1C7C39060083DFD7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EB69EC631C7C39060083DFD7;
+			remoteInfo = TWIQKeyboardManagerStudy;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		340EAF9B491196188D7251AB /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		67E752BFF77BF7FC01451AB5 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		B1C5E11B1102C9CC34B2AE18 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB69EC641C7C39060083DFD7 /* TWIQKeyboardManagerStudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TWIQKeyboardManagerStudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB69EC681C7C39060083DFD7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EB69EC6A1C7C39060083DFD7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		EB69EC6B1C7C39060083DFD7 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		EB69EC6D1C7C39060083DFD7 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		EB69EC6E1C7C39060083DFD7 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		EB69EC711C7C39060083DFD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		EB69EC731C7C39060083DFD7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EB69EC761C7C39060083DFD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		EB69EC781C7C39060083DFD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EB69EC7D1C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWIQKeyboardManagerStudyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB69EC811C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TWIQKeyboardManagerStudyTests.m; sourceTree = "<group>"; };
+		EB69EC831C7C39060083DFD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EB69EC881C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWIQKeyboardManagerStudyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB69EC8C1C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TWIQKeyboardManagerStudyUITests.m; sourceTree = "<group>"; };
+		EB69EC8E1C7C39060083DFD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EB69EC611C7C39060083DFD7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4540F55EFBDBAF68298F9314 /* libPods.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB69EC7A1C7C39060083DFD7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB69EC851C7C39060083DFD7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0D44AD3E3C6EF78236FA9F7E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B1C5E11B1102C9CC34B2AE18 /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		767C9C40480062170DE897E3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				67E752BFF77BF7FC01451AB5 /* Pods.debug.xcconfig */,
+				340EAF9B491196188D7251AB /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		EB69EC5B1C7C39060083DFD7 = {
+			isa = PBXGroup;
+			children = (
+				EB69EC661C7C39060083DFD7 /* TWIQKeyboardManagerStudy */,
+				EB69EC801C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests */,
+				EB69EC8B1C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests */,
+				EB69EC651C7C39060083DFD7 /* Products */,
+				767C9C40480062170DE897E3 /* Pods */,
+				0D44AD3E3C6EF78236FA9F7E /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		EB69EC651C7C39060083DFD7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EB69EC641C7C39060083DFD7 /* TWIQKeyboardManagerStudy.app */,
+				EB69EC7D1C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.xctest */,
+				EB69EC881C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EB69EC661C7C39060083DFD7 /* TWIQKeyboardManagerStudy */ = {
+			isa = PBXGroup;
+			children = (
+				EB69EC6A1C7C39060083DFD7 /* AppDelegate.h */,
+				EB69EC6B1C7C39060083DFD7 /* AppDelegate.m */,
+				EB69EC6D1C7C39060083DFD7 /* ViewController.h */,
+				EB69EC6E1C7C39060083DFD7 /* ViewController.m */,
+				EB69EC701C7C39060083DFD7 /* Main.storyboard */,
+				EB69EC731C7C39060083DFD7 /* Assets.xcassets */,
+				EB69EC751C7C39060083DFD7 /* LaunchScreen.storyboard */,
+				EB69EC781C7C39060083DFD7 /* Info.plist */,
+				EB69EC671C7C39060083DFD7 /* Supporting Files */,
+			);
+			path = TWIQKeyboardManagerStudy;
+			sourceTree = "<group>";
+		};
+		EB69EC671C7C39060083DFD7 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				EB69EC681C7C39060083DFD7 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		EB69EC801C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests */ = {
+			isa = PBXGroup;
+			children = (
+				EB69EC811C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.m */,
+				EB69EC831C7C39060083DFD7 /* Info.plist */,
+			);
+			path = TWIQKeyboardManagerStudyTests;
+			sourceTree = "<group>";
+		};
+		EB69EC8B1C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests */ = {
+			isa = PBXGroup;
+			children = (
+				EB69EC8C1C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.m */,
+				EB69EC8E1C7C39060083DFD7 /* Info.plist */,
+			);
+			path = TWIQKeyboardManagerStudyUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EB69EC631C7C39060083DFD7 /* TWIQKeyboardManagerStudy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB69EC911C7C39060083DFD7 /* Build configuration list for PBXNativeTarget "TWIQKeyboardManagerStudy" */;
+			buildPhases = (
+				5CE8264335BF779FDA31B2DE /* Check Pods Manifest.lock */,
+				EB69EC601C7C39060083DFD7 /* Sources */,
+				EB69EC611C7C39060083DFD7 /* Frameworks */,
+				EB69EC621C7C39060083DFD7 /* Resources */,
+				1949F7964087914AC72B41CE /* Embed Pods Frameworks */,
+				EE6CC941C7E8CDD2DF2DD255 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TWIQKeyboardManagerStudy;
+			productName = TWIQKeyboardManagerStudy;
+			productReference = EB69EC641C7C39060083DFD7 /* TWIQKeyboardManagerStudy.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EB69EC7C1C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB69EC941C7C39060083DFD7 /* Build configuration list for PBXNativeTarget "TWIQKeyboardManagerStudyTests" */;
+			buildPhases = (
+				EB69EC791C7C39060083DFD7 /* Sources */,
+				EB69EC7A1C7C39060083DFD7 /* Frameworks */,
+				EB69EC7B1C7C39060083DFD7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EB69EC7F1C7C39060083DFD7 /* PBXTargetDependency */,
+			);
+			name = TWIQKeyboardManagerStudyTests;
+			productName = TWIQKeyboardManagerStudyTests;
+			productReference = EB69EC7D1C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EB69EC871C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB69EC971C7C39060083DFD7 /* Build configuration list for PBXNativeTarget "TWIQKeyboardManagerStudyUITests" */;
+			buildPhases = (
+				EB69EC841C7C39060083DFD7 /* Sources */,
+				EB69EC851C7C39060083DFD7 /* Frameworks */,
+				EB69EC861C7C39060083DFD7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EB69EC8A1C7C39060083DFD7 /* PBXTargetDependency */,
+			);
+			name = TWIQKeyboardManagerStudyUITests;
+			productName = TWIQKeyboardManagerStudyUITests;
+			productReference = EB69EC881C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EB69EC5C1C7C39060083DFD7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = haKim;
+				TargetAttributes = {
+					EB69EC631C7C39060083DFD7 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+					EB69EC7C1C7C39060083DFD7 = {
+						CreatedOnToolsVersion = 7.2.1;
+						TestTargetID = EB69EC631C7C39060083DFD7;
+					};
+					EB69EC871C7C39060083DFD7 = {
+						CreatedOnToolsVersion = 7.2.1;
+						TestTargetID = EB69EC631C7C39060083DFD7;
+					};
+				};
+			};
+			buildConfigurationList = EB69EC5F1C7C39060083DFD7 /* Build configuration list for PBXProject "TWIQKeyboardManagerStudy" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EB69EC5B1C7C39060083DFD7;
+			productRefGroup = EB69EC651C7C39060083DFD7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EB69EC631C7C39060083DFD7 /* TWIQKeyboardManagerStudy */,
+				EB69EC7C1C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests */,
+				EB69EC871C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EB69EC621C7C39060083DFD7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB69EC771C7C39060083DFD7 /* LaunchScreen.storyboard in Resources */,
+				EB69EC741C7C39060083DFD7 /* Assets.xcassets in Resources */,
+				EB69EC721C7C39060083DFD7 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB69EC7B1C7C39060083DFD7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB69EC861C7C39060083DFD7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1949F7964087914AC72B41CE /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5CE8264335BF779FDA31B2DE /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		EE6CC941C7E8CDD2DF2DD255 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EB69EC601C7C39060083DFD7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB69EC6F1C7C39060083DFD7 /* ViewController.m in Sources */,
+				EB69EC6C1C7C39060083DFD7 /* AppDelegate.m in Sources */,
+				EB69EC691C7C39060083DFD7 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB69EC791C7C39060083DFD7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB69EC821C7C39060083DFD7 /* TWIQKeyboardManagerStudyTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB69EC841C7C39060083DFD7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB69EC8D1C7C39060083DFD7 /* TWIQKeyboardManagerStudyUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EB69EC7F1C7C39060083DFD7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EB69EC631C7C39060083DFD7 /* TWIQKeyboardManagerStudy */;
+			targetProxy = EB69EC7E1C7C39060083DFD7 /* PBXContainerItemProxy */;
+		};
+		EB69EC8A1C7C39060083DFD7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EB69EC631C7C39060083DFD7 /* TWIQKeyboardManagerStudy */;
+			targetProxy = EB69EC891C7C39060083DFD7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		EB69EC701C7C39060083DFD7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EB69EC711C7C39060083DFD7 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		EB69EC751C7C39060083DFD7 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EB69EC761C7C39060083DFD7 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		EB69EC8F1C7C39060083DFD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		EB69EC901C7C39060083DFD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EB69EC921C7C39060083DFD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 67E752BFF77BF7FC01451AB5 /* Pods.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = TWIQKeyboardManagerStudy/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hakim.TWIQKeyboardManagerStudy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EB69EC931C7C39060083DFD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 340EAF9B491196188D7251AB /* Pods.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = TWIQKeyboardManagerStudy/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hakim.TWIQKeyboardManagerStudy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		EB69EC951C7C39060083DFD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = TWIQKeyboardManagerStudyTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hakim.TWIQKeyboardManagerStudyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TWIQKeyboardManagerStudy.app/TWIQKeyboardManagerStudy";
+			};
+			name = Debug;
+		};
+		EB69EC961C7C39060083DFD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = TWIQKeyboardManagerStudyTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hakim.TWIQKeyboardManagerStudyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TWIQKeyboardManagerStudy.app/TWIQKeyboardManagerStudy";
+			};
+			name = Release;
+		};
+		EB69EC981C7C39060083DFD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = TWIQKeyboardManagerStudyUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hakim.TWIQKeyboardManagerStudyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = TWIQKeyboardManagerStudy;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		EB69EC991C7C39060083DFD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = TWIQKeyboardManagerStudyUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hakim.TWIQKeyboardManagerStudyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = TWIQKeyboardManagerStudy;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EB69EC5F1C7C39060083DFD7 /* Build configuration list for PBXProject "TWIQKeyboardManagerStudy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB69EC8F1C7C39060083DFD7 /* Debug */,
+				EB69EC901C7C39060083DFD7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EB69EC911C7C39060083DFD7 /* Build configuration list for PBXNativeTarget "TWIQKeyboardManagerStudy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB69EC921C7C39060083DFD7 /* Debug */,
+				EB69EC931C7C39060083DFD7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EB69EC941C7C39060083DFD7 /* Build configuration list for PBXNativeTarget "TWIQKeyboardManagerStudyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB69EC951C7C39060083DFD7 /* Debug */,
+				EB69EC961C7C39060083DFD7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EB69EC971C7C39060083DFD7 /* Build configuration list for PBXNativeTarget "TWIQKeyboardManagerStudyUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB69EC981C7C39060083DFD7 /* Debug */,
+				EB69EC991C7C39060083DFD7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EB69EC5C1C7C39060083DFD7 /* Project object */;
+}
