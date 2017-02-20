@@ -97,6 +97,11 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
     [self.navigationController pushViewController:detailViewController animated:YES];
 }
 
+//- (BOOL)collectionView:(UICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    return YES;
+//}
+
 #pragma mark - VTMagicReuseProtocol
 - (void)vtm_prepareForReuse {
     // reset content offset

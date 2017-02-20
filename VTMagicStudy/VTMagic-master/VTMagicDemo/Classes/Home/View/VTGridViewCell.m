@@ -35,6 +35,14 @@
         [self.contentView addSubview:_commentLabel];
         
         [self setNeedsUpdateConstraints];
+        
+        UIView* backgroundView = [[UIView alloc] initWithFrame:self.bounds];
+        backgroundView.backgroundColor = [UIColor whiteColor];
+        self.backgroundView = backgroundView;
+        
+        UIView* selectedBGView = [[UIView alloc] initWithFrame:self.bounds];
+        selectedBGView.backgroundColor = [UIColor lightGrayColor];
+        self.selectedBackgroundView = selectedBGView;
     }
     return self;
 }

@@ -12,7 +12,10 @@
 
 @interface VTHomeViewController ()
 
+// 导航栏上的菜单menus数组
 @property (nonatomic, strong)  NSArray *menuList;
+
+// 表示是否自自动切换到第一个选项，“推荐页面”
 @property (nonatomic, assign)  BOOL autoSwitch;
 
 @end
@@ -28,23 +31,49 @@
 //    self.magicView.itemSpacing = 20.f;
 //    self.magicView.switchEnabled = YES;
 //    self.magicView.separatorHidden = NO;
+    // 选中是menu放大的倍数
     self.magicView.itemScale = 1.2;
-    self.magicView.headerHeight = 40;
+    
+    // 这个不知道是什么东西啊，改了看不出什么效果
+    self.magicView.headerHeight = 10;
+    
+    //VTMenuBar,应该是放menus的父控件容器高度
     self.magicView.navigationHeight = 44;
+    
+    // 导航栏是否需要空出20个点状态栏的位置，
     self.magicView.againstStatusBar = YES;
 //    self.magicView.sliderExtension = 5.0;
 //    self.magicView.switchStyle = VTSwitchStyleStiff;
 //    self.magicView.navigationInset = UIEdgeInsetsMake(0, 50, 0, 0);
+    
     self.magicView.headerView.backgroundColor = RGBCOLOR(243, 40, 47);
+    
+    // 改了颜色，红色，没看到效果
+    self.magicView.headerView.backgroundColor = RGBCOLOR(00, 255, 00);
+    
+    // 导航栏颜色，即放menus 的容器的背景颜色
     self.magicView.navigationColor = [UIColor whiteColor];
+//    self.magicView.navigationColor = [UIColor greenColor];
+    
+    // 导航菜单的布局样式,默认样式，item自适应文本宽度，间距由itemSpacing决定
     self.magicView.layoutStyle = VTLayoutStyleDefault;
+    
     self.view.backgroundColor = RGBCOLOR(243, 40, 47);
     self.edgesForExtendedLayout = UIRectEdgeAll;
+    
+    // 顶部导航栏右侧视图项,即这个页面的 “+”按钮
     [self integrateComponents];
+    
+    // 配置导航栏横的分割线高度和颜色
     [self configSeparatorView];
     
+    // 添加屏幕旋转的一些通知
     [self addNotification];
+    
+    // 生成测试数据，即menus
     [self generateTestData];
+    
+    // 加载数据
     [self.magicView reloadData];
 }
 
@@ -86,7 +115,9 @@
 }
 
 #pragma mark - VTMagicViewDataSource
+// 数据源协议
 - (NSArray<NSString *> *)menuTitlesForMagicView:(VTMagicView *)magicView {
+    // menus title 数组
     NSMutableArray *titleList = [NSMutableArray array];
     for (MenuInfo *menu in _menuList) {
         [titleList addObject:menu.title];
@@ -94,6 +125,7 @@
     return titleList;
 }
 
+// 返回menus 的button
 - (UIButton *)magicView:(VTMagicView *)magicView menuItemAtIndex:(NSUInteger)itemIndex {
     static NSString *itemIdentifier = @"itemIdentifier";
     UIButton *menuItem = [magicView dequeueReusableItemWithIdentifier:itemIdentifier];
@@ -109,6 +141,7 @@
     return menuItem;
 }
 
+// 返回某一页的控制器
 - (UIViewController *)magicView:(VTMagicView *)magicView viewControllerAtPage:(NSUInteger)pageIndex {
     MenuInfo *menuInfo = _menuList[pageIndex];
     if (0 == pageIndex) {
@@ -128,6 +161,8 @@
     }
     viewController.menuInfo = menuInfo;
     return viewController;
+    
+    UIView *view = nil;
 }
 
 #pragma mark - VTMagicViewDelegate
@@ -178,9 +213,14 @@
 - (void)configSeparatorView {
 //    UIImageView *separatorView = [[UIImageView alloc] init];
 //    [self.magicView setSeparatorView:separatorView];
+    
+    // 导航栏与其他视图的横的分割线高度和颜色
     self.magicView.separatorHeight = 2.f;
     self.magicView.separatorColor = RGBCOLOR(22, 146, 211);
+    
+    // 配置导航栏视图的阴影颜色和位置效果
     self.magicView.navigationView.layer.shadowColor = RGBCOLOR(22, 146, 211).CGColor;
+//    self.magicView.navigationView.layer.shadowColor = RGBCOLOR(255, 00, 00).CGColor;
     self.magicView.navigationView.layer.shadowOffset = CGSizeMake(0, 0.5);
     self.magicView.navigationView.layer.shadowOpacity = 0.8;
     self.magicView.navigationView.clipsToBounds = NO;
