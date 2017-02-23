@@ -22,12 +22,16 @@
     [super viewDidLoad];
     
     self.tableView.scrollsToTop = NO;
+    // 不设置的话会被tabbar 遮住
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, VTTABBAR_HEIGHT, 0);
     self.view.backgroundColor = RGBCOLOR(239, 239, 239);
     self.tableView.rowHeight = 70.f;
     
     [self fetchNewsData];
+    
     [self.tableView reloadData];
+    
+    NSLog(@"self.magicController = %@",self.magicController);
 }
 
 - (void)viewWillAppear:(BOOL)animated {

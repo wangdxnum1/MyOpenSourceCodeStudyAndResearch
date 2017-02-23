@@ -75,18 +75,23 @@
     
     // 加载数据
     [self.magicView reloadData];
+    
+    VTPRINT_METHOD
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
+    
+    // 看是否要自动切换到“推荐”
     _autoSwitch = 0 != self.tabBarController.selectedIndex;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    // 看是否要自动切换到“推荐”
     if (_autoSwitch) {
         [self.magicView switchToPage:0 animated:YES];
         _autoSwitch = NO;
@@ -94,12 +99,15 @@
 }
 
 - (void)dealloc {
+    // 移除通知
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - NSNotification
 - (void)addNotification {
+    // 先移除对屏幕旋转的通知
     [self removeNotification];
+    // 添加对屏幕旋转的通知
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(statusBarOrientationChange:)
                                                  name:UIApplicationDidChangeStatusBarOrientationNotification
@@ -107,10 +115,12 @@
 }
 
 - (void)removeNotification {
+    // 移除对屏幕旋转的通知
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
 }
 
 - (void)statusBarOrientationChange:(NSNotification *)notification {
+    // 相应屏幕旋转的操作
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:YES];
 }
 
@@ -130,6 +140,7 @@
     static NSString *itemIdentifier = @"itemIdentifier";
     UIButton *menuItem = [magicView dequeueReusableItemWithIdentifier:itemIdentifier];
     if (!menuItem) {
+        // 设置选中，平时的颜色，字体啊之类的
         menuItem = [UIButton buttonWithType:UIButtonTypeCustom];
         [menuItem setTitleColor:RGBCOLOR(50, 50, 50) forState:UIControlStateNormal];
         [menuItem setTitleColor:RGBCOLOR(169, 37, 37) forState:UIControlStateSelected];
@@ -161,25 +172,27 @@
     }
     viewController.menuInfo = menuInfo;
     return viewController;
-    
-    UIView *view = nil;
 }
 
 #pragma mark - VTMagicViewDelegate
 - (void)magicView:(VTMagicView *)magicView viewDidAppear:(__kindof UIViewController *)viewController atPage:(NSUInteger)pageIndex {
-//    NSLog(@"index:%ld viewDidAppear:%@", (long)pageIndex, viewController.view);
+    // index 位置的控制器显示了
+//    NSLog(@"index:%ld viewDidAppear:%@-%@", (long)pageIndex, viewController,viewController.view);
 }
 
 - (void)magicView:(VTMagicView *)magicView viewDidDisappear:(__kindof UIViewController *)viewController atPage:(NSUInteger)pageIndex {
-//    NSLog(@"index:%ld viewDidDisappear:%@", (long)pageIndex, viewController.view);
+    // index 位置的控制器消失了
+//    NSLog(@"index:%ld viewDidDisappear:%@-%@", (long)pageIndex, viewController,viewController.view);
 }
 
 - (void)magicView:(VTMagicView *)magicView didSelectItemAtIndex:(NSUInteger)itemIndex {
+    // 导航栏上的 menu 被选中了
 //    NSLog(@"didSelectItemAtIndex:%ld", (long)itemIndex);
 }
 
 #pragma mark - actions
 - (void)subscribeAction {
+    // 订阅按钮点击相应事件
     NSLog(@"subscribeAction");
     // against status bar or not
 //    self.magicView.againstStatusBar = !self.magicView.againstStatusBar;
@@ -188,6 +201,7 @@
 
 #pragma mark - functional methods
 - (void)generateTestData {
+    // 制造menus 数据
     NSString *title = @"推荐";
     NSMutableArray *menuList = [[NSMutableArray alloc] initWithCapacity:24];
     [menuList addObject:[MenuInfo menuInfoWithTitl:title]];
@@ -200,6 +214,7 @@
 }
 
 - (void)integrateComponents {
+    // 订阅按钮，+ 号按钮
     UIButton *rightButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
     [rightButton addTarget:self action:@selector(subscribeAction) forControlEvents:UIControlEventTouchUpInside];
     [rightButton setTitleColor:RGBACOLOR(169, 37, 37, 0.6) forState:UIControlStateSelected];

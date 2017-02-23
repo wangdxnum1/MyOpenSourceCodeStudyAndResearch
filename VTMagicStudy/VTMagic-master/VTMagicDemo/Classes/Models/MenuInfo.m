@@ -12,6 +12,7 @@
 
 + (instancetype)menuInfoWithTitl:(NSString *)title {
     MenuInfo *menu = [[MenuInfo alloc] init];
+    // 随机生成menu ID
     menu.menuId = [NSString stringWithFormat:@"%d", arc4random_uniform(100000)];
     menu.title = title;
     return menu;

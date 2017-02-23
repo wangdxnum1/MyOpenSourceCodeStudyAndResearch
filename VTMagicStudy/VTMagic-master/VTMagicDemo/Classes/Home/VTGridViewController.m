@@ -25,6 +25,7 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
 
 - (instancetype)init {
     BOOL iPhoneDevice = kiPhoneDevice;
+    // UICollectionViewFlowLayout 布局
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
     layout.sectionInset = iPhoneDevice ?UIEdgeInsetsMake(10, 10, 10, 10) : UIEdgeInsetsMake(20, 20, 20, 20);
@@ -70,6 +71,7 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     
+    // 缓存本页面的数据
     [self savePageInfo];
     VTPRINT_METHOD
 }
@@ -114,6 +116,7 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
 #pragma mark - functional methods
 - (void)refreshPageIfNeeded {
     NSTimeInterval currentStamp = [[NSDate date] timeIntervalSince1970];
+    // 有数据，且更新时间小于1小时，就不更新
     if (self.infoList.count && currentStamp - _menuInfo.lastTime < 60 * 60) {
         return;
     }
@@ -121,6 +124,7 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
     // 模拟网络请求延时，根据_menuInfo.menuId请求对应菜单项的相关信息
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         _menuInfo.lastTime = currentStamp;
+        // 处理网络请求成功
         [self handleNetworkSuccess];
     });
 }
@@ -139,10 +143,12 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
 }
 
 - (void)savePageInfo {
+    // 缓存数据
     [[DataManager sharedInstance] savePageInfo:_infoList menuId:_menuInfo.menuId];
 }
 
 - (void)loadLocalData {
+    // 先加载本地数据
     NSArray *cacheList = [[DataManager sharedInstance] pageInfoWithMenuId:_menuInfo.menuId];
     [_infoList addObjectsFromArray:cacheList];
     [self.collectionView reloadData];
