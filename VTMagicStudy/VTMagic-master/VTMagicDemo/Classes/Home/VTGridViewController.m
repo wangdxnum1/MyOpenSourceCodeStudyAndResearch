@@ -38,6 +38,7 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    // 配置 collectionView
     self.collectionView.scrollsToTop = NO;
     self.collectionView.backgroundColor = RGBCOLOR(239, 239, 239);
     self.collectionView.contentInset = UIEdgeInsetsMake(0, 0, VTTABBAR_HEIGHT, 0);
@@ -53,6 +54,7 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    // 若有必要则刷新数据
     [self refreshPageIfNeeded];
     self.collectionView.scrollsToTop = YES;
     NSInteger pageIndex = [self vtm_pageIndex];
@@ -62,7 +64,7 @@ static NSString *reuseIdentifier = @"grid.reuse.identifier";
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    
+    // 取消网络请求
     [self cancelNetworkRequest];
     self.collectionView.scrollsToTop = NO;
     VTPRINT_METHOD
