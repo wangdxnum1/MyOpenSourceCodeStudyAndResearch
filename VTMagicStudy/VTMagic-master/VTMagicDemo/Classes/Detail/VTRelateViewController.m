@@ -20,11 +20,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    // tableview 设置
     self.tableView.scrollsToTop = NO;
     self.view.backgroundColor = RGBCOLOR(239, 239, 239);
     self.tableView.rowHeight = 70.f;
     
+    // 生产新数据
     [self fetchNewsData];
+    // 刷新数据
     [self.tableView reloadData];
 }
 
@@ -76,12 +79,14 @@
 #pragma mark - VTMagicReuseProtocol
 - (void)vtm_prepareForReuse {
     // reset content offset
+    // 被重用的时候会通知
     NSLog(@"clear old data if needed:%@", self);
     [self.tableView setContentOffset:CGPointZero];
 }
 
 #pragma mark - functional methods
 - (void)fetchNewsData {
+    // 产生新数据
     _newsList = [[NSMutableArray alloc] init];
     for (NSInteger index = 0; index < 50; index++) {
         [_newsList addObject:[NSString stringWithFormat:@"image_%d", arc4random_uniform(13)]];
