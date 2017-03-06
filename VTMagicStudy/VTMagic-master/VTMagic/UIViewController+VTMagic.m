@@ -23,6 +23,7 @@ static const void *kVTReuseIdentifier = &kVTReuseIdentifier;
     return objc_getAssociatedObject(self, kVTReuseIdentifier);
 }
 
+// 找到当前控制器的父容器，magicController
 - (UIViewController<VTMagicProtocol> *)magicController {
     UIViewController *viewController = self.parentViewController;
     while (viewController) {
@@ -32,6 +33,7 @@ static const void *kVTReuseIdentifier = &kVTReuseIdentifier;
     return (UIViewController<VTMagicProtocol> *)viewController;
 }
 
+// 返回当前控制器的索引
 - (NSInteger)vtm_pageIndex {
     return [self.magicController.magicView pageIndexForViewController:self];
 }

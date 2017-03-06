@@ -22,6 +22,7 @@ typedef struct {
     unsigned int shouldManualForwardAppearanceMethods : 1;
 } MagicFlags;
 
+// 关联对象
 static const void *kVTMagicView = &kVTMagicView;
 @implementation UIViewController (VTMagicPrivate)
 
@@ -39,21 +40,37 @@ static const void *kVTMagicView = &kVTMagicView;
 @interface VTMagicView()<UIScrollViewDelegate,VTContentViewDataSource,VTMenuBarDatasource,VTMenuBarDelegate>
 
 @property (nonatomic, strong) UIView *reviseView; // 避免系统自动调整contentView的inset
+
 @property (nonatomic, strong) VTMenuBar *menuBar; // 顶部导航菜单视图
+
 @property (nonatomic, strong) VTContentView *contentView; // 容器视图
+
 @property (nonatomic, strong) UIView *sliderView; // 顶部导航栏滑块
+
 @property (nonatomic, strong) UIView *separatorView; // 导航模块底部分割线
+
 @property (nonatomic, strong) NSArray *menuTitles; // 顶部分类名数组
+
 @property (nonatomic, assign) NSInteger nextPageIndex; // 下一个页面的索引
+
 @property (nonatomic, assign) NSInteger currentPage; //当前页面的索引
+
 @property (nonatomic, assign) NSInteger previousIndex; // 上一个页面的索引
+
 @property (nonatomic, assign) BOOL isViewWillAppear;
+
 @property (nonatomic, assign) BOOL needSkipUpdate; // 是否是跳页切换
+
 @property (nonatomic, assign) MagicFlags magicFlags;
+
 @property (nonatomic, assign) VTColor normalVTColor;
+
 @property (nonatomic, assign) VTColor selectedVTColor;
+
 @property (nonatomic, strong) UIColor *normalColor; // 顶部item正常的文本颜色
+
 @property (nonatomic, strong) UIColor *selectedColor; // 顶部item被选中时的文本颜色
+
 @property (nonatomic, assign) BOOL isPanValid;
 
 @end
@@ -68,23 +85,37 @@ static const void *kVTMagicView = &kVTMagicView;
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
+        // 配置默认值
         [self configDefaultValues];
+        
+        // 添加子视图
         [self addMagicSubviews];
+        
+        // 添加通知
         [self addNotification];
     }
     return self;
 }
 
+// 添加子视图
 - (void)addMagicSubviews {
+    // 暂不知这个view的作用
     [self addSubview:self.reviseView];
+    // 内容视图，添加子控制器的view的
     [self addSubview:self.contentView];
+    // 导航栏视图
     [self addSubview:self.navigationView];
+    // 头部控件
     [self addSubview:self.headerView];
+    // 导航栏与contentView的分割线
     [_navigationView addSubview:self.separatorView];
+    // 菜单栏
     [_navigationView addSubview:self.menuBar];
+    // 滑块
     [_menuBar addSubview:self.sliderView];
 }
 
+// 配置默认值
 - (void)configDefaultValues {
     _itemScale = 1.0;
     _previewItems = 1;
@@ -102,6 +133,7 @@ static const void *kVTMagicView = &kVTMagicView;
 }
 
 - (void)dealloc {
+    // 移除通知
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -109,25 +141,35 @@ static const void *kVTMagicView = &kVTMagicView;
 - (void)layoutSubviews {
     [super layoutSubviews];
     
+    // 更新子控件的布局
     [self updateFrameForSubviews];
+    
     if (CGRectIsEmpty(_sliderView.frame)) {
         [self updateMenuBarState];
     }
 }
 
+// 更新子控件的布局
 - (void)updateFrameForSubviews {
     CGSize size = self.frame.size;
+    // 为状态栏留出20个空隙,0或者20
     CGFloat topY = _againstStatusBar ? VTSTATUSBAR_HEIGHT : 0;
+    
+    // headerY -64 或者 topY的值，默认为-64
     CGFloat headerY = _headerHidden ? -_headerHeight : topY;
+    
     _headerView.frame = CGRectMake(0, headerY, size.width, _headerHeight);
     
+    // 导航栏y值，和高度，44或者64
     CGFloat navigationY = _headerHidden ? 0 : CGRectGetMaxY(_headerView.frame);
     CGFloat navigationH = _navigationHeight + (_headerHidden ? topY : 0);
     _navigationView.frame = CGRectMake(0, navigationY, size.width, navigationH);
     
+    // 分割线位置，44 - 0.5 或者 64 - 0.5
     CGFloat separatorY = CGRectGetHeight(_navigationView.frame) - _separatorHeight;
     _separatorView.frame = CGRectMake(0, separatorY, size.width, _separatorHeight);
     
+    // 设置菜单栏的frame，存放menu的容器
     CGRect originalMenuFrame = _menuBar.frame;
     CGFloat menuBarY = _headerHidden ? topY : 0;
     CGFloat leftItemWidth = CGRectGetWidth(_leftNavigatoinItem.frame);
@@ -135,24 +177,32 @@ static const void *kVTMagicView = &kVTMagicView;
     CGFloat catWidth = size.width - leftItemWidth - rightItemWidth;
     _menuBar.frame = CGRectMake(leftItemWidth, menuBarY, catWidth, _navigationHeight);
     if (!CGRectEqualToRect(_menuBar.frame, originalMenuFrame)) {
+        // 跟原始的不相等，则进行一些操作
         [_menuBar resetItemFrames];
+        
         [self updateMenuBarState];
     }
     
+    // 刷新滑块的位置
     CGRect sliderFrame = [_menuBar sliderFrameAtIndex:_currentPage];
     _sliderView.frame = sliderFrame;
     
+    // 设置content view 的frame
     self.needSkipUpdate = YES;
     CGRect originalContentFrame = _contentView.frame;
     CGFloat contentY = CGRectGetMaxY(_navigationView.frame);
     CGFloat contentH = size.height - contentY + (_needExtendBottom ? VTTABBAR_HEIGHT : 0);
     _contentView.frame = CGRectMake(0, contentY, size.width, contentH);
     if (!CGRectEqualToRect(_contentView.frame, originalContentFrame)) {
+        // contentView，进行一些操作
         [_contentView resetPageFrames];
     }
     self.needSkipUpdate = NO;
     
+    // 导航栏左部的按钮位置设置
     [self updateFrameForLeftNavigationItem];
+    
+    // 导航栏右部的按钮位置设置
     [self updateFrameForRightNavigationItem];
 }
 
@@ -175,7 +225,9 @@ static const void *kVTMagicView = &kVTMagicView;
 
 #pragma mark - NSNotification
 - (void)addNotification {
+    // 先移除屏幕旋转的通知
     [self removeNotification];
+    // 添加通知
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(statusBarOrientationChange:)
                                                  name:UIApplicationDidChangeStatusBarOrientationNotification
@@ -183,9 +235,11 @@ static const void *kVTMagicView = &kVTMagicView;
 }
 
 - (void)removeNotification {
+    // 移除屏幕旋转的通知
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
 }
 
+// 处理屏幕旋转事件
 - (void)statusBarOrientationChange:(NSNotification *)notification {
     self.needSkipUpdate = YES;
     _menuBar.needSkipLayout = NO;
@@ -195,6 +249,7 @@ static const void *kVTMagicView = &kVTMagicView;
     [self reviseLayout];
 }
 
+// 不知道啥用处
 - (void)reviseLayout {
     if ([_magicController isKindOfClass:[VTMagicController class]]) {
         return;

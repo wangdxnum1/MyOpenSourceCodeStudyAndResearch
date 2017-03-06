@@ -28,17 +28,21 @@
     return self;
 }
 
+// 加载magicView
 - (void)loadView {
     [super loadView];
     
+    // 重载loadView，加载自己的view
     self.view = self.magicView;
 }
 
+// 管理视图的出现，消失等状态
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
     self.appearanceState = VTAppearanceStateWillAppear;
     if (!_magicView.isSwitching) {
+        // 自己实现容器类的控制器，调用这个方法告诉子控制器view发生变化
         [_currentViewController beginAppearanceTransition:YES animated:animated];
     }
 }
@@ -71,16 +75,20 @@
 }
 
 #pragma mark - forward appearance methods
+// 是否自动调用appearance 方法，来告诉子控制器
 - (BOOL)shouldAutomaticallyForwardAppearanceMethods {
     return NO;
 }
 
 #pragma mark - functional methods
+// public 方法
 - (UIViewController *)viewControllerAtPage:(NSUInteger)pageIndex {
+    // 返回指定索引的控制器
     return [self.magicView viewControllerAtPage:pageIndex];
 }
 
 - (void)switchToPage:(NSUInteger)pageIndex animated:(BOOL)animated {
+    // 切换到指定索引的页面
     [self.magicView switchToPage:pageIndex animated:animated];
 }
 
@@ -124,6 +132,7 @@
 }
 
 #pragma mark - accessor methods
+// get && set method
 - (VTMagicView *)magicView {
     if (!_magicView) {
         _magicView = [[VTMagicView alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -136,6 +145,7 @@
     return _magicView;
 }
 
+// 屏幕上可见的控制器
 - (NSArray<UIViewController *> *)viewControllers {
     return self.magicView.viewControllers;
 }

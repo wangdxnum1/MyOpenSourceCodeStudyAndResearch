@@ -150,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSUInteger previewItems;
 
 
-#pragma mark - subviews
+#pragma mark - subviews 子视图
 /****************************************subviews****************************************/
 
 /**
@@ -190,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setSeparatorView:(UIView *)separatorView;
 
 
-#pragma mark - bool configurations
+#pragma mark - bool configurations, 选项配置
 /****************************************bool configurations****************************************/
 
 /**
@@ -274,7 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL needExtendBottom VT_DEPRECATED_IN("1.2.5");
 
 
-#pragma mark - color & size configurations
+#pragma mark - color & size configurations 颜色和尺寸的配置
 /**************************************color & size**************************************/
 
 /**
