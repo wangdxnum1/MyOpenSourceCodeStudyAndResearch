@@ -41,10 +41,12 @@
 #endif
 
 @interface AFHTTPSessionManager ()
+// 对调用者是readonly，class内部是readwrite，这种语法之前没怎么用过，下次可以尝试下
 @property (readwrite, nonatomic, strong) NSURL *baseURL;
 @end
 
 @implementation AFHTTPSessionManager
+// 手动活运行时生成responseSerializer
 @dynamic responseSerializer;
 
 + (instancetype)manager {
@@ -66,6 +68,7 @@
 - (instancetype)initWithBaseURL:(NSURL *)url
            sessionConfiguration:(NSURLSessionConfiguration *)configuration
 {
+    // 调用父类的初始化方法
     self = [super initWithSessionConfiguration:configuration];
     if (!self) {
         return nil;
@@ -73,12 +76,16 @@
 
     // Ensure terminal slash for baseURL path, so that NSURL +URLWithString:relativeToURL: works as expected
     if ([[url path] length] > 0 && ![[url absoluteString] hasSuffix:@"/"]) {
+        // baseUrl,没有'/'，的话自动拼接一个'/'
         url = [url URLByAppendingPathComponent:@""];
     }
 
     self.baseURL = url;
 
+    // 请求的序列化对象
     self.requestSerializer = [AFHTTPRequestSerializer serializer];
+    
+    // Response 的序列化对象，HTTP这个子类的默认是Json格式，其实父类也是Json格式
     self.responseSerializer = [AFJSONResponseSerializer serializer];
 
     return self;
@@ -86,19 +93,21 @@
 
 #pragma mark -
 
+// requestSerializer setter，子类没什么逻辑，调用父类实现
 - (void)setRequestSerializer:(AFHTTPRequestSerializer <AFURLRequestSerialization> *)requestSerializer {
     NSParameterAssert(requestSerializer);
 
     _requestSerializer = requestSerializer;
 }
 
+// responseSerializer setter，子类没什么逻辑，调用父类实现
 - (void)setResponseSerializer:(AFHTTPResponseSerializer <AFURLResponseSerialization> *)responseSerializer {
     NSParameterAssert(responseSerializer);
 
     [super setResponseSerializer:responseSerializer];
 }
 
-#pragma mark -
+#pragma mark - HTTP请求的各个方法，public method.
 
 - (NSURLSessionDataTask *)GET:(NSString *)URLString
                    parameters:(id)parameters
@@ -116,6 +125,7 @@
                       failure:(void (^)(NSURLSessionDataTask * _Nullable, NSError * _Nonnull))failure
 {
 
+    // 创建task
     NSURLSessionDataTask *dataTask = [self dataTaskWithHTTPMethod:@"GET"
                                                         URLString:URLString
                                                        parameters:parameters
@@ -124,6 +134,7 @@
                                                           success:success
                                                           failure:failure];
 
+    // 发送请求
     [dataTask resume];
 
     return dataTask;

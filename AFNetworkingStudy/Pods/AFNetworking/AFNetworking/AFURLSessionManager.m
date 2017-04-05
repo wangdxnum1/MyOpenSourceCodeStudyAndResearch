@@ -515,29 +515,40 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     }
 
     if (!configuration) {
+        //configuration 为空，则使用的默认的defaultSessionConfiguration
         configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     }
 
+    // sessionConfiguration赋值
     self.sessionConfiguration = configuration;
 
+    // 执行session回调的队列
     self.operationQueue = [[NSOperationQueue alloc] init];
     self.operationQueue.maxConcurrentOperationCount = 1;
 
+    // 生成session
     self.session = [NSURLSession sessionWithConfiguration:self.sessionConfiguration delegate:self delegateQueue:self.operationQueue];
-
+    
+#pragma warning - 子类又去覆盖，为何？
+    // responseSerializer，这边子类又去生成一个，是不是繁琐了
     self.responseSerializer = [AFJSONResponseSerializer serializer];
 
+    // 默认的安全策略
     self.securityPolicy = [AFSecurityPolicy defaultPolicy];
 
 #if !TARGET_OS_WATCH
+    // 除了iWatch,还会生成一个网络检测管理器
     self.reachabilityManager = [AFNetworkReachabilityManager sharedManager];
 #endif
 
+    // 用来管理什么的呢？先备注
     self.mutableTaskDelegatesKeyedByTaskIdentifier = [[NSMutableDictionary alloc] init];
 
+    // 锁，用于何处呢？先备注
     self.lock = [[NSLock alloc] init];
     self.lock.name = AFURLSessionManagerLockName;
 
+    // 暂不知这段代码的效果
     [self.session getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
         for (NSURLSessionDataTask *task in dataTasks) {
             [self addDelegateForDataTask:task uploadProgress:nil downloadProgress:nil completionHandler:nil];
