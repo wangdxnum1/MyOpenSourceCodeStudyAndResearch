@@ -156,6 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  The dispatch queue for `completionBlock`. If `NULL` (default), the main queue is used.
+ 请求完成是，失败和成功的回调执行所在的队列，默认是主队列
  */
 @property (nonatomic, strong, nullable) dispatch_queue_t completionQueue;
 

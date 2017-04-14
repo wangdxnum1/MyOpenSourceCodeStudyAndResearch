@@ -28,6 +28,7 @@
 #define NSFoundationVersionNumber_With_Fixed_5871104061079552_bug NSFoundationVersionNumber_iOS_8_0
 #endif
 
+// 生产队列，创建task，是一个串行队列
 static dispatch_queue_t url_session_manager_creation_queue() {
     static dispatch_queue_t af_url_session_manager_creation_queue;
     static dispatch_once_t onceToken;
@@ -38,13 +39,16 @@ static dispatch_queue_t url_session_manager_creation_queue() {
     return af_url_session_manager_creation_queue;
 }
 
+// 为了修复bug，在并行队列创建task会引发的bug，在小于某个版本时，在
 static void url_session_manager_create_task_safely(dispatch_block_t block) {
     if (NSFoundationVersionNumber < NSFoundationVersionNumber_With_Fixed_5871104061079552_bug) {
         // Fix of bug
         // Open Radar:http://openradar.appspot.com/radar?id=5871104061079552 (status: Fixed in iOS8)
         // Issue about:https://github.com/AFNetworking/AFNetworking/issues/2093
+        // 同步调用，阻塞主调线程
         dispatch_sync(url_session_manager_creation_queue(), block);
     } else {
+        // 还是在主调线程里生产task（一般为主线程，主队列）
         block();
     }
 }
@@ -113,7 +117,10 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
 
 #pragma mark -
 
+// task 的回调类的封装
 @interface AFURLSessionManagerTaskDelegate : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate>
+
+// url session manager
 @property (nonatomic, weak) AFURLSessionManager *manager;
 @property (nonatomic, strong) NSMutableData *mutableData;
 @property (nonatomic, strong) NSProgress *uploadProgress;
@@ -566,6 +573,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     return self;
 }
 
+// dealloc 方法，移除通知
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -624,18 +632,22 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     [self.lock unlock];
 }
 
+// 比较重要的一个方法，给每个task 设置回调，比如上传进度，下载进度，完成时的回调
 - (void)addDelegateForDataTask:(NSURLSessionDataTask *)dataTask
                 uploadProgress:(nullable void (^)(NSProgress *uploadProgress)) uploadProgressBlock
               downloadProgress:(nullable void (^)(NSProgress *downloadProgress)) downloadProgressBlock
              completionHandler:(void (^)(NSURLResponse *response, id responseObject, NSError *error))completionHandler
 {
+    // 创建task 代理类，给每个task
     AFURLSessionManagerTaskDelegate *delegate = [[AFURLSessionManagerTaskDelegate alloc] init];
     delegate.manager = self;
+    // 完成时的回调
     delegate.completionHandler = completionHandler;
 
     dataTask.taskDescription = self.taskDescriptionForSessionTasks;
     [self setDelegate:delegate forTask:dataTask];
 
+    // 下载，上传的回调
     delegate.uploadProgressBlock = uploadProgressBlock;
     delegate.downloadProgressBlock = downloadProgressBlock;
 }
@@ -761,24 +773,29 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark -
 
+// 根据request 生成task，无完成时的回调
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
                             completionHandler:(void (^)(NSURLResponse *response, id responseObject, NSError *error))completionHandler
 {
     return [self dataTaskWithRequest:request uploadProgress:nil downloadProgress:nil completionHandler:completionHandler];
 }
 
+// 根据request 生成task
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
                                uploadProgress:(nullable void (^)(NSProgress *uploadProgress)) uploadProgressBlock
                              downloadProgress:(nullable void (^)(NSProgress *downloadProgress)) downloadProgressBlock
                             completionHandler:(nullable void (^)(NSURLResponse *response, id _Nullable responseObject,  NSError * _Nullable error))completionHandler {
 
     __block NSURLSessionDataTask *dataTask = nil;
+    // 静态 c 函数，生产data task
     url_session_manager_create_task_safely(^{
         dataTask = [self.session dataTaskWithRequest:request];
     });
 
+    // 重点，给每个task 设置所有回调
     [self addDelegateForDataTask:dataTask uploadProgress:uploadProgressBlock downloadProgress:downloadProgressBlock completionHandler:completionHandler];
 
+    // 然后返回task，上层执行resume 发送请求
     return dataTask;
 }
 

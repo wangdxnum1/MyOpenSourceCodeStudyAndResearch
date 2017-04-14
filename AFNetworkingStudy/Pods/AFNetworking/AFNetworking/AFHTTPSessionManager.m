@@ -93,7 +93,7 @@
 
 #pragma mark -
 
-// requestSerializer setter，子类没什么逻辑，调用父类实现
+// requestSerializer setter
 - (void)setRequestSerializer:(AFHTTPRequestSerializer <AFURLRequestSerialization> *)requestSerializer {
     NSParameterAssert(requestSerializer);
 
@@ -109,7 +109,7 @@
 
 #pragma mark - HTTP请求的各个方法，public method.
 
-// GET
+// GET 这个是废弃函数，已经过时
 - (NSURLSessionDataTask *)GET:(NSString *)URLString
                    parameters:(id)parameters
                       success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
@@ -119,6 +119,7 @@
     return [self GET:URLString parameters:parameters progress:nil success:success failure:failure];
 }
 
+// GET 方法
 - (NSURLSessionDataTask *)GET:(NSString *)URLString
                    parameters:(id)parameters
                      progress:(void (^)(NSProgress * _Nonnull))downloadProgress
@@ -126,7 +127,7 @@
                       failure:(void (^)(NSURLSessionDataTask * _Nullable, NSError * _Nonnull))failure
 {
 
-    // 创建task
+    // 创建task，重点逻，根据parameter，生成一个GET请求的task
     NSURLSessionDataTask *dataTask = [self dataTaskWithHTTPMethod:@"GET"
                                                         URLString:URLString
                                                        parameters:parameters
@@ -285,9 +286,10 @@
                                          failure:(void (^)(NSURLSessionDataTask *, NSError *))failure
 {
     NSError *serializationError = nil;
-    // 由requestSerializer构造request
+    // 由requestSerializer构造request，生成request，需要method，url，parameter
     NSMutableURLRequest *request = [self.requestSerializer requestWithMethod:method URLString:[[NSURL URLWithString:URLString relativeToURL:self.baseURL] absoluteString] parameters:parameters error:&serializationError];
     if (serializationError) {
+        // 创建请求request失败，直接回调失败的block
         if (failure) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu"
@@ -300,11 +302,13 @@
         return nil;
     }
 
+    // 根据request，创建网络请求的task，这是父类的方法
     __block NSURLSessionDataTask *dataTask = nil;
     dataTask = [self dataTaskWithRequest:request
                           uploadProgress:uploadProgress
                         downloadProgress:downloadProgress
                        completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
+                           // 请求完成时，根据error 区分回调是失败和成功的回调
         if (error) {
             if (failure) {
                 failure(dataTask, error);
@@ -331,6 +335,7 @@
     return YES;
 }
 
+// 支持反序列化
 - (instancetype)initWithCoder:(NSCoder *)decoder {
     NSURL *baseURL = [decoder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(baseURL))];
     NSURLSessionConfiguration *configuration = [decoder decodeObjectOfClass:[NSURLSessionConfiguration class] forKey:@"sessionConfiguration"];
@@ -360,6 +365,7 @@
     return self;
 }
 
+// 支持序列化
 - (void)encodeWithCoder:(NSCoder *)coder {
     [super encodeWithCoder:coder];
 
@@ -376,6 +382,7 @@
 
 #pragma mark - NSCopying
 
+// 支持copy 协议
 - (instancetype)copyWithZone:(NSZone *)zone {
     AFHTTPSessionManager *HTTPClient = [[[self class] allocWithZone:zone] initWithBaseURL:self.baseURL sessionConfiguration:self.session.configuration];
 
