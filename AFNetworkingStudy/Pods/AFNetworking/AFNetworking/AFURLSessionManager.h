@@ -193,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Invalidates the managed session, optionally canceling pending tasks.
-
+ 使session无效，cancelPendingTasks表示已经执行的也要不要取消
  @param cancelPendingTasks Whether or not to cancel pending tasks.
  */
 - (void)invalidateSessionCancelingTasks:(BOOL)cancelPendingTasks;

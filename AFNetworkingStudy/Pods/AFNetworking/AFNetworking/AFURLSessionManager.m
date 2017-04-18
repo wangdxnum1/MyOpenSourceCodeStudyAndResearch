@@ -662,6 +662,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark -
 
+// 根据task 获取deelgate 对象
 - (AFURLSessionManagerTaskDelegate *)delegateForTask:(NSURLSessionTask *)task {
     NSParameterAssert(task);
 
@@ -753,13 +754,17 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     delegate.downloadProgressBlock = downloadProgressBlock;
 }
 
+// 移除task所对应的delegate
 - (void)removeDelegateForTask:(NSURLSessionTask *)task {
     NSParameterAssert(task);
 
     AFURLSessionManagerTaskDelegate *delegate = [self delegateForTask:task];
     [self.lock lock];
+    // 移除kvo
     [delegate cleanUpProgressForTask:task];
+    // 移除通知
     [self removeNotificationObserverForTask:task];
+    // 从字典里删除delegate对象
     [self.mutableTaskDelegatesKeyedByTaskIdentifier removeObjectForKey:@(task.taskIdentifier)];
     [self.lock unlock];
 }
@@ -783,23 +788,28 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
         dispatch_semaphore_signal(semaphore);
     }];
 
+    // getTasksWithCompletionHandler异步方法，用来确保执行完上述方法的block，主调线程先被阻塞在这里
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
     return tasks;
 }
 
+// 获取所有的task
 - (NSArray *)tasks {
     return [self tasksForKeyPath:NSStringFromSelector(_cmd)];
 }
 
+// 获取普通的http task
 - (NSArray *)dataTasks {
     return [self tasksForKeyPath:NSStringFromSelector(_cmd)];
 }
 
+// 获取上传的task
 - (NSArray *)uploadTasks {
     return [self tasksForKeyPath:NSStringFromSelector(_cmd)];
 }
 
+// 获取下载文件的task
 - (NSArray *)downloadTasks {
     return [self tasksForKeyPath:NSStringFromSelector(_cmd)];
 }
@@ -809,8 +819,10 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 - (void)invalidateSessionCancelingTasks:(BOOL)cancelPendingTasks {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (cancelPendingTasks) {
+            // 取消所有的任务，包括正在执行的
             [self.session invalidateAndCancel];
         } else {
+            // 会完成已经在执行的
             [self.session finishTasksAndInvalidate];
         }
     });
@@ -818,6 +830,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark -
 
+// 设置response 序列化对象
 - (void)setResponseSerializer:(id <AFURLResponseSerialization>)responseSerializer {
     NSParameterAssert(responseSerializer);
 
@@ -962,6 +975,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark -
 
+// 几个session 状态的回调block
 - (void)setSessionDidBecomeInvalidBlock:(void (^)(NSURLSession *session, NSError *error))block {
     self.sessionDidBecomeInvalid = block;
 }
@@ -976,6 +990,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark -
 
+// 设置task 状态的回调block
 - (void)setTaskNeedNewBodyStreamBlock:(NSInputStream * (^)(NSURLSession *session, NSURLSessionTask *task))block {
     self.taskNeedNewBodyStream = block;
 }
@@ -998,6 +1013,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark -
 
+// 设置task 数据的回调block
 - (void)setDataTaskDidReceiveResponseBlock:(NSURLSessionResponseDisposition (^)(NSURLSession *session, NSURLSessionDataTask *dataTask, NSURLResponse *response))block {
     self.dataTaskDidReceiveResponse = block;
 }
@@ -1016,6 +1032,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark -
 
+// 下载文件task的几个回调block
 - (void)setDownloadTaskDidFinishDownloadingBlock:(NSURL * (^)(NSURLSession *session, NSURLSessionDownloadTask *downloadTask, NSURL *location))block {
     self.downloadTaskDidFinishDownloading = block;
 }
@@ -1030,10 +1047,12 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark - NSObject
 
+// 重写description
 - (NSString *)description {
     return [NSString stringWithFormat:@"<%@: %p, session: %@, operationQueue: %@>", NSStringFromClass([self class]), self, self.session, self.operationQueue];
 }
 
+// 重写respondsToSelector
 - (BOOL)respondsToSelector:(SEL)selector {
     if (selector == @selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)) {
         return self.taskWillPerformHTTPRedirection != nil;
@@ -1050,6 +1069,9 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
 #pragma mark - NSURLSessionDelegate
 
+// session 的代理方法
+
+// session 变为无效的时候的代理
 - (void)URLSession:(NSURLSession *)session
 didBecomeInvalidWithError:(NSError *)error
 {
@@ -1060,6 +1082,7 @@ didBecomeInvalidWithError:(NSError *)error
     [[NSNotificationCenter defaultCenter] postNotificationName:AFURLSessionDidInvalidateNotification object:session];
 }
 
+// session 接收到挑战的时候，主要用于https验证
 - (void)URLSession:(NSURLSession *)session
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
  completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
@@ -1092,7 +1115,9 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
 }
 
 #pragma mark - NSURLSessionTaskDelegate
+// NSURLSessionTaskDelegate  更 task 有关
 
+// 会重定向的时候
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
 willPerformHTTPRedirection:(NSHTTPURLResponse *)response
@@ -1110,6 +1135,8 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     }
 }
 
+
+// task 接收到验证挑战
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
@@ -1138,6 +1165,8 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
 }
 
+
+// 暂不知这个代理的意思
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
  needNewBodyStream:(void (^)(NSInputStream *bodyStream))completionHandler
@@ -1155,6 +1184,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
 }
 
+// 发送请求的数据
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
    didSendBodyData:(int64_t)bytesSent
@@ -1175,6 +1205,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
     }
 }
 
+// 请求完成，根据task 获取delegate
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
 didCompleteWithError:(NSError *)error
@@ -1183,8 +1214,10 @@ didCompleteWithError:(NSError *)error
 
     // delegate may be nil when completing a task in the background
     if (delegate) {
+        // 调用delegate 的相应的代理方法，执行具体的操作
         [delegate URLSession:session task:task didCompleteWithError:error];
 
+        // 移除delegate对象
         [self removeDelegateForTask:task];
     }
 
@@ -1195,6 +1228,9 @@ didCompleteWithError:(NSError *)error
 
 #pragma mark - NSURLSessionDataDelegate
 
+// NSURLSessionDataDelegate 的代理方法
+
+// 不知道什么意思，感觉跟前面的类似
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
 didReceiveResponse:(NSURLResponse *)response
@@ -1211,6 +1247,7 @@ didReceiveResponse:(NSURLResponse *)response
     }
 }
 
+// 不知道应用场景
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
 didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
@@ -1226,6 +1263,7 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
     }
 }
 
+// 开始接受到数据，会具体调用到delegate对象
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
@@ -1239,6 +1277,7 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
     }
 }
 
+// 会缓存的代理
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
  willCacheResponse:(NSCachedURLResponse *)proposedResponse
@@ -1255,6 +1294,7 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
     }
 }
 
+// 后台下载，感觉这个session 有很多要学习的点啊
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
     if (self.didFinishEventsForBackgroundURLSession) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1265,6 +1305,10 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
 
 #pragma mark - NSURLSessionDownloadDelegate
 
+// NSURLSessionDownloadDelegate
+
+
+// 文件下载完成
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location
@@ -1312,6 +1356,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes
 
 #pragma mark - NSSecureCoding
 
+// 支持序列化
 + (BOOL)supportsSecureCoding {
     return YES;
 }
@@ -1319,6 +1364,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes
 - (instancetype)initWithCoder:(NSCoder *)decoder {
     NSURLSessionConfiguration *configuration = [decoder decodeObjectOfClass:[NSURLSessionConfiguration class] forKey:@"sessionConfiguration"];
 
+    // 根据configuration 生成manager
     self = [self initWithSessionConfiguration:configuration];
     if (!self) {
         return nil;
@@ -1327,12 +1373,14 @@ expectedTotalBytes:(int64_t)expectedTotalBytes
     return self;
 }
 
+// 序列化，值保存了configuration
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:self.session.configuration forKey:@"sessionConfiguration"];
 }
 
 #pragma mark - NSCopying
 
+// 支持拷贝
 - (instancetype)copyWithZone:(NSZone *)zone {
     return [[[self class] allocWithZone:zone] initWithSessionConfiguration:self.session.configuration];
 }
