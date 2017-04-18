@@ -53,6 +53,7 @@ static void url_session_manager_create_task_safely(dispatch_block_t block) {
     }
 }
 
+// 在delegate完成的回调函数里，且是http请求成功的时候，处理的队列，并发队列
 static dispatch_queue_t url_session_manager_processing_queue() {
     static dispatch_queue_t af_url_session_manager_processing_queue;
     static dispatch_once_t onceToken;
@@ -63,6 +64,7 @@ static dispatch_queue_t url_session_manager_processing_queue() {
     return af_url_session_manager_processing_queue;
 }
 
+// 在delegate对象里的完成回调方法里有用到
 static dispatch_group_t url_session_manager_completion_group() {
     static dispatch_group_t af_url_session_manager_completion_group;
     static dispatch_once_t onceToken;
@@ -117,18 +119,28 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
 
 #pragma mark -
 
-// task 的回调类的封装
+// task 的回调类的封装，遵循session 的回调
 @interface AFURLSessionManagerTaskDelegate : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate>
 
 // url session manager
 @property (nonatomic, weak) AFURLSessionManager *manager;
+// 接受请求的数据
 @property (nonatomic, strong) NSMutableData *mutableData;
+// 上传的进度
 @property (nonatomic, strong) NSProgress *uploadProgress;
+// 下载的进度
 @property (nonatomic, strong) NSProgress *downloadProgress;
+// 下载文件的url
 @property (nonatomic, copy) NSURL *downloadFileURL;
+
+// 下载task完成时的回调
 @property (nonatomic, copy) AFURLSessionDownloadTaskDidFinishDownloadingBlock downloadTaskDidFinishDownloading;
+// 上传进度的回调
 @property (nonatomic, copy) AFURLSessionTaskProgressBlock uploadProgressBlock;
+// 下载进度的回调
 @property (nonatomic, copy) AFURLSessionTaskProgressBlock downloadProgressBlock;
+
+// 请求完成时的回调
 @property (nonatomic, copy) AFURLSessionTaskCompletionHandler completionHandler;
 @end
 
@@ -140,6 +152,7 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
         return nil;
     }
 
+    // 初始化
     self.mutableData = [NSMutableData data];
     self.uploadProgress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
     self.uploadProgress.totalUnitCount = NSURLSessionTransferSizeUnknown;
@@ -152,20 +165,25 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
 #pragma mark - NSProgress Tracking
 
 - (void)setupProgressForTask:(NSURLSessionTask *)task {
+    // 若引用task
     __weak __typeof__(task) weakTask = task;
 
     self.uploadProgress.totalUnitCount = task.countOfBytesExpectedToSend;
     self.downloadProgress.totalUnitCount = task.countOfBytesExpectedToReceive;
+    // 设置取消和取消回调
     [self.uploadProgress setCancellable:YES];
     [self.uploadProgress setCancellationHandler:^{
+        // 在block里把weakTask 再转换为strong strongTask,因为strong task 为局部变量
         __typeof__(weakTask) strongTask = weakTask;
         [strongTask cancel];
     }];
+    // 设置暂停和暂停的回调
     [self.uploadProgress setPausable:YES];
     [self.uploadProgress setPausingHandler:^{
         __typeof__(weakTask) strongTask = weakTask;
         [strongTask suspend];
     }];
+    // 设置恢复和回复的回调
     if ([self.uploadProgress respondsToSelector:@selector(setResumingHandler:)]) {
         [self.uploadProgress setResumingHandler:^{
             __typeof__(weakTask) strongTask = weakTask;
@@ -173,6 +191,7 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
         }];
     }
 
+    // 下载
     [self.downloadProgress setCancellable:YES];
     [self.downloadProgress setCancellationHandler:^{
         __typeof__(weakTask) strongTask = weakTask;
@@ -191,6 +210,7 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
         }];
     }
 
+    // kvo ，监听task的属性，例如接收到的字节，发出的字节
     [task addObserver:self
            forKeyPath:NSStringFromSelector(@selector(countOfBytesReceived))
               options:NSKeyValueObservingOptionNew
@@ -209,6 +229,7 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
               options:NSKeyValueObservingOptionNew
               context:NULL];
 
+    // 监听进度的fractionCompleted，进度百分比
     [self.downloadProgress addObserver:self
                             forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                                options:NSKeyValueObservingOptionNew
@@ -219,7 +240,9 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
                              context:NULL];
 }
 
+// 清除task的进度的一些kvo之类的
 - (void)cleanUpProgressForTask:(NSURLSessionTask *)task {
+    // 移除kvo
     [task removeObserver:self forKeyPath:NSStringFromSelector(@selector(countOfBytesReceived))];
     [task removeObserver:self forKeyPath:NSStringFromSelector(@selector(countOfBytesExpectedToReceive))];
     [task removeObserver:self forKeyPath:NSStringFromSelector(@selector(countOfBytesSent))];
@@ -228,24 +251,31 @@ typedef void (^AFURLSessionTaskCompletionHandler)(NSURLResponse *response, id re
     [self.uploadProgress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
 }
 
+// kvo 监听函数
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
     if ([object isKindOfClass:[NSURLSessionTask class]] || [object isKindOfClass:[NSURLSessionDownloadTask class]]) {
         if ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesReceived))]) {
+            // 更新下载进度
             self.downloadProgress.completedUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesExpectedToReceive))]) {
+            // 更新预期下载的总进度
             self.downloadProgress.totalUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesSent))]) {
+            // 更新上传的进度
             self.uploadProgress.completedUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesExpectedToSend))]) {
+            // 更新预期上传的总进度
             self.uploadProgress.totalUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];
         }
-    }
+    }// 由task 的countOfBytesReceived引起downloadProgress的completedUnitCount，从而引起fractionCompleted的变化，从而调用downloadProgressBlock，即最外面的调用者block
     else if ([object isEqual:self.downloadProgress]) {
+        // 下载的进度回调
         if (self.downloadProgressBlock) {
             self.downloadProgressBlock(object);
         }
     }
     else if ([object isEqual:self.uploadProgress]) {
+        // 上传的进度回调
         if (self.uploadProgressBlock) {
             self.uploadProgressBlock(object);
         }
@@ -268,6 +298,7 @@ didCompleteWithError:(NSError *)error
     userInfo[AFNetworkingTaskDidCompleteResponseSerializerKey] = manager.responseSerializer;
 
     //Performance Improvement from #2672
+    // 内存优化，释放成员变量的mutableData，data是局部变量，执行好之后，会自动释放掉
     NSData *data = nil;
     if (self.mutableData) {
         data = [self.mutableData copy];
@@ -275,15 +306,20 @@ didCompleteWithError:(NSError *)error
         self.mutableData = nil;
     }
 
+    // 如果指定了下载的文件的位置
     if (self.downloadFileURL) {
         userInfo[AFNetworkingTaskDidCompleteAssetPathKey] = self.downloadFileURL;
     } else if (data) {
         userInfo[AFNetworkingTaskDidCompleteResponseDataKey] = data;
     }
 
+    
     if (error) {
+        // 发生错误
+        // 添加错误AFNetworkingTaskDidCompleteErrorKey
         userInfo[AFNetworkingTaskDidCompleteErrorKey] = error;
 
+        //completionGroup，若为NULL，则使用私有的，通过函数url_session_manager_completion_group获取
         dispatch_group_async(manager.completionGroup ?: url_session_manager_completion_group(), manager.completionQueue ?: dispatch_get_main_queue(), ^{
             if (self.completionHandler) {
                 self.completionHandler(task.response, responseObject, error);
@@ -296,25 +332,31 @@ didCompleteWithError:(NSError *)error
     } else {
         dispatch_async(url_session_manager_processing_queue(), ^{
             NSError *serializationError = nil;
+            // 返回序列化之后的数据，是json 的话，就返回解析好之后的dict
             responseObject = [manager.responseSerializer responseObjectForResponse:task.response data:data error:&serializationError];
-
+            
+            // 如果是下载文件，则responseObject是FileUrl
             if (self.downloadFileURL) {
                 responseObject = self.downloadFileURL;
             }
 
+            // 有数据，则放在AFNetworkingTaskDidCompleteSerializedResponseKey key里
             if (responseObject) {
                 userInfo[AFNetworkingTaskDidCompleteSerializedResponseKey] = responseObject;
             }
 
+            // 序列化错误 AFNetworkingTaskDidCompleteErrorKey
             if (serializationError) {
                 userInfo[AFNetworkingTaskDidCompleteErrorKey] = serializationError;
             }
 
             dispatch_group_async(manager.completionGroup ?: url_session_manager_completion_group(), manager.completionQueue ?: dispatch_get_main_queue(), ^{
+                // 完成时的回调
                 if (self.completionHandler) {
                     self.completionHandler(task.response, responseObject, serializationError);
                 }
 
+                // 发出通知，在主队列发的，所以必须在主队列监听通知
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [[NSNotificationCenter defaultCenter] postNotificationName:AFNetworkingTaskDidCompleteNotification object:task userInfo:userInfo];
                 });
@@ -330,11 +372,13 @@ didCompleteWithError:(NSError *)error
           dataTask:(__unused NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
 {
+    // 接收数据
     [self.mutableData appendData:data];
 }
 
 #pragma mark - NSURLSessionDownloadTaskDelegate
 
+// 下载文件的task完成是的回调
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location
@@ -343,11 +387,13 @@ didFinishDownloadingToURL:(NSURL *)location
     self.downloadFileURL = nil;
 
     if (self.downloadTaskDidFinishDownloading) {
+        // 回调调用者的block得到用户指定保存的file url，进行文件移动操作
         self.downloadFileURL = self.downloadTaskDidFinishDownloading(session, downloadTask, location);
         if (self.downloadFileURL) {
             [[NSFileManager defaultManager] moveItemAtURL:location toURL:self.downloadFileURL error:&fileManagerError];
 
             if (fileManagerError) {
+                // 若发生移动错误，则发出通知
                 [[NSNotificationCenter defaultCenter] postNotificationName:AFURLSessionDownloadTaskDidFailToMoveFileNotification object:downloadTask userInfo:fileManagerError.userInfo];
             }
         }
@@ -486,9 +532,17 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 #pragma mark -
 
 @interface AFURLSessionManager ()
+
+// 创建session 所需要的sessionConfiguration
 @property (readwrite, nonatomic, strong) NSURLSessionConfiguration *sessionConfiguration;
+
+// 回调执行的队列，并发，默认最大并发数为1，相当于串行
 @property (readwrite, nonatomic, strong) NSOperationQueue *operationQueue;
+
+// 核心对象，session，发送请求
 @property (readwrite, nonatomic, strong) NSURLSession *session;
+
+// 一个task 对应一个 delegate对象
 @property (readwrite, nonatomic, strong) NSMutableDictionary *mutableTaskDelegatesKeyedByTaskIdentifier;
 @property (readonly, nonatomic, copy) NSString *taskDescriptionForSessionTasks;
 @property (readwrite, nonatomic, strong) NSLock *lock;
@@ -529,7 +583,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     // sessionConfiguration赋值
     self.sessionConfiguration = configuration;
 
-    // 执行session回调的队列
+    // 执行session回调的队列，并发数为1，相当于为串行队列，但是在成功的时候，又会在并行队列里处理成功的逻辑，串行(manager)--->>>并行(delegate)---->>主队列(没设置completionQueue，则为朱队列)串行
     self.operationQueue = [[NSOperationQueue alloc] init];
     self.operationQueue.maxConcurrentOperationCount = 1;
 
@@ -551,7 +605,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     // 用来管理什么的呢？先备注
     self.mutableTaskDelegatesKeyedByTaskIdentifier = [[NSMutableDictionary alloc] init];
 
-    // 锁，用于何处呢？先备注
+    // 锁，用于何处呢？先备注，用来加锁mutableTaskDelegatesKeyedByTaskIdentifier，即给每个task设置delegate对象，加入数组的时候的锁
     self.lock = [[NSLock alloc] init];
     self.lock.name = AFURLSessionManagerLockName;
 
@@ -619,16 +673,24 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     return delegate;
 }
 
+// 给每个task设置代理对象，处理每个task的回调
 - (void)setDelegate:(AFURLSessionManagerTaskDelegate *)delegate
             forTask:(NSURLSessionTask *)task
 {
     NSParameterAssert(task);
     NSParameterAssert(delegate);
 
+    // 加锁
     [self.lock lock];
+    // task.taskIdentifier 唯一的，系统会保证
     self.mutableTaskDelegatesKeyedByTaskIdentifier[@(task.taskIdentifier)] = delegate;
+    
+    // 给delegate对象设置进度，根据task
     [delegate setupProgressForTask:task];
+    
+    // 监听task发出的通知，任务开始和挂起
     [self addNotificationObserverForTask:task];
+    
     [self.lock unlock];
 }
 
@@ -644,7 +706,9 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
     // 完成时的回调
     delegate.completionHandler = completionHandler;
 
+    // 给每个task设置一个描述，就是self 的地址
     dataTask.taskDescription = self.taskDescriptionForSessionTasks;
+    // 把http task  跟 delegate对象关联 key = dataTask.taskIdentifier   value = delegate
     [self setDelegate:delegate forTask:dataTask];
 
     // 下载，上传的回调
@@ -761,11 +825,15 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 }
 
 #pragma mark -
+// 添加监听通知
 - (void)addNotificationObserverForTask:(NSURLSessionTask *)task {
+    // task 开始
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(taskDidResume:) name:AFNSURLSessionTaskDidResumeNotification object:task];
+    // task 被挂起
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(taskDidSuspend:) name:AFNSURLSessionTaskDidSuspendNotification object:task];
 }
 
+// 移除通知
 - (void)removeNotificationObserverForTask:(NSURLSessionTask *)task {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNSURLSessionTaskDidSuspendNotification object:task];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNSURLSessionTaskDidResumeNotification object:task];

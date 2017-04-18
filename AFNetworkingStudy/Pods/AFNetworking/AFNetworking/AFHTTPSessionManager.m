@@ -309,6 +309,7 @@
                         downloadProgress:downloadProgress
                        completionHandler:^(NSURLResponse * __unused response, id responseObject, NSError *error) {
                            // 请求完成时，根据error 区分回调是失败和成功的回调
+                           // 是由每个对象的 delegate调用
         if (error) {
             if (failure) {
                 failure(dataTask, error);
