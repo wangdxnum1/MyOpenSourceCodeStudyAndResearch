@@ -34,7 +34,7 @@
 }
 
 - (IBAction)testClicked:(UIButton *)sender {
-    [self.httpClient GET:@"" parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+    [self.httpClient GET:@"" parameters:@{@"name":@"wang="} progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *html = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];

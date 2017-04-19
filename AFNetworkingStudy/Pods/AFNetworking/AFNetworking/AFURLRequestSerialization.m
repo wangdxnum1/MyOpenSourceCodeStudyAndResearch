@@ -44,6 +44,8 @@ typedef NSString * (^AFQueryStringSerializationBlock)(NSURLRequest *request, id 
     - parameter string: The string to be percent-escaped.
     - returns: The percent-escaped string.
  */
+
+// url 编码，有些字符要转义，例如 "=" %3D
 NSString * AFPercentEscapedStringFromString(NSString *string) {
     static NSString * const kAFCharactersGeneralDelimitersToEncode = @":#[]@"; // does not include "?" or "/" due to RFC 3986 - Section 3.4
     static NSString * const kAFCharactersSubDelimitersToEncode = @"!$&'()*+,;=";
@@ -54,6 +56,7 @@ NSString * AFPercentEscapedStringFromString(NSString *string) {
 	// FIXME: https://github.com/AFNetworking/AFNetworking/pull/3028
     // return [string stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
 
+    // 分批处理，暂时不知道为了修复什么bug
     static NSUInteger const batchSize = 50;
 
     NSUInteger index = 0;
@@ -67,9 +70,11 @@ NSString * AFPercentEscapedStringFromString(NSString *string) {
         NSRange range = NSMakeRange(index, length);
 
         // To avoid breaking up character sequences such as 👴🏻👮🏽
+        // 遍历一个字符，不会断开了，因为表情是两个unicode-16
         range = [string rangeOfComposedCharacterSequencesForRange:range];
 
         NSString *substring = [string substringWithRange:range];
+        // 对string进行url %编码
         NSString *encoded = [substring stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
         [escaped appendString:encoded];
 
@@ -104,10 +109,13 @@ NSString * AFPercentEscapedStringFromString(NSString *string) {
     return self;
 }
 
+// 把key 和value 以“=”号连接，返回字符串
 - (NSString *)URLEncodedStringValue {
     if (!self.value || [self.value isEqual:[NSNull null]]) {
+        // 为空
         return AFPercentEscapedStringFromString([self.field description]);
     } else {
+        // name=wang
         return [NSString stringWithFormat:@"%@=%@", AFPercentEscapedStringFromString([self.field description]), AFPercentEscapedStringFromString([self.value description])];
     }
 }
@@ -119,36 +127,49 @@ NSString * AFPercentEscapedStringFromString(NSString *string) {
 FOUNDATION_EXPORT NSArray * AFQueryStringPairsFromDictionary(NSDictionary *dictionary);
 FOUNDATION_EXPORT NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value);
 
+
+// 构造查询参数，拼接成固定格式的字符串，例如name=wang&password=123456
 NSString * AFQueryStringFromParameters(NSDictionary *parameters) {
     NSMutableArray *mutablePairs = [NSMutableArray array];
     for (AFQueryStringPair *pair in AFQueryStringPairsFromDictionary(parameters)) {
         [mutablePairs addObject:[pair URLEncodedStringValue]];
     }
 
+    // 最后以& join连接在一起
     return [mutablePairs componentsJoinedByString:@"&"];
 }
 
+// 把键值对变成AFQueryStringPair对象的数组
 NSArray * AFQueryStringPairsFromDictionary(NSDictionary *dictionary) {
     return AFQueryStringPairsFromKeyAndValue(nil, dictionary);
 }
 
+// 把键值对变成AFQueryStringPair对象的数组，重点是算法实现，字符串，递归操作，还有http 格式
 NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
     NSMutableArray *mutableQueryStringComponents = [NSMutableArray array];
 
     NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"description" ascending:YES selector:@selector(compare:)];
 
+    // value是字典
     if ([value isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dictionary = value;
         // Sort dictionary keys to ensure consistent ordering in query string, which is important when deserializing potentially ambiguous sequences, such as an array of dictionaries
+        // 对字典 按key 排序
         for (id nestedKey in [dictionary.allKeys sortedArrayUsingDescriptors:@[ sortDescriptor ]]) {
+            // 取出值，1.字典 2.array 3.set 4.正常应该就是string和nsnumber了
             id nestedValue = dictionary[nestedKey];
             if (nestedValue) {
+                // 递归调用，key 有两种情况
+                // 1.最外面一层的字典，即key为nil，则递归的key是nestedKey，例如name
+                // 2.如果不是最外面层，套了两层字典，例如persion对象，  key:persion[name]   多层persion[student][name]
                 [mutableQueryStringComponents addObjectsFromArray:AFQueryStringPairsFromKeyAndValue((key ? [NSString stringWithFormat:@"%@[%@]", key, nestedKey] : nestedKey), nestedValue)];
             }
         }
     } else if ([value isKindOfClass:[NSArray class]]) {
+        // value 是数组
         NSArray *array = value;
         for (id nestedValue in array) {
+            // 1.key 是 names[],AF默认是没有加[]中括号的，改了他的代码
             [mutableQueryStringComponents addObjectsFromArray:AFQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[]", key], nestedValue)];
         }
     } else if ([value isKindOfClass:[NSSet class]]) {
@@ -157,6 +178,7 @@ NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
             [mutableQueryStringComponents addObjectsFromArray:AFQueryStringPairsFromKeyAndValue(key, obj)];
         }
     } else {
+        // 是string 和nsnumber了，就构造AFQueryStringPair
         [mutableQueryStringComponents addObject:[[AFQueryStringPair alloc] initWithField:key value:value]];
     }
 
@@ -178,6 +200,7 @@ static NSArray * AFHTTPRequestSerializerObservedKeyPaths() {
     static NSArray *_AFHTTPRequestSerializerObservedKeyPaths = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        // 数组 里存放的是request 类的一些方法
         _AFHTTPRequestSerializerObservedKeyPaths = @[NSStringFromSelector(@selector(allowsCellularAccess)), NSStringFromSelector(@selector(cachePolicy)), NSStringFromSelector(@selector(HTTPShouldHandleCookies)), NSStringFromSelector(@selector(HTTPShouldUsePipelining)), NSStringFromSelector(@selector(networkServiceType)), NSStringFromSelector(@selector(timeoutInterval))];
     });
 
@@ -187,6 +210,7 @@ static NSArray * AFHTTPRequestSerializerObservedKeyPaths() {
 static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerObserverContext;
 
 @interface AFHTTPRequestSerializer ()
+// 暂不知这个数组的用处
 @property (readwrite, nonatomic, strong) NSMutableSet *mutableObservedChangedKeyPaths;
 @property (readwrite, nonatomic, strong) NSMutableDictionary *mutableHTTPRequestHeaders;
 @property (readwrite, nonatomic, assign) AFHTTPRequestQueryStringSerializationStyle queryStringSerializationStyle;
@@ -205,11 +229,15 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
         return nil;
     }
 
+    // 默认是utf8编码
     self.stringEncoding = NSUTF8StringEncoding;
 
+    // HTTP 请求头
     self.mutableHTTPRequestHeaders = [NSMutableDictionary dictionary];
 
+    // AF 设置一些默认HTTP 请求头
     // Accept-Language HTTP Header; see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
+    // 设置可接受的语言，从代码程度上来讲，没什么，只是不了解为什么要这么做而已
     NSMutableArray *acceptLanguagesComponents = [NSMutableArray array];
     [[NSLocale preferredLanguages] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         float q = 1.0f - (idx * 0.1f);
@@ -218,6 +246,7 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
     }];
     [self setValue:[acceptLanguagesComponents componentsJoinedByString:@", "] forHTTPHeaderField:@"Accept-Language"];
 
+    // HTTP 代理，例如是什么浏览器
     NSString *userAgent = nil;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu"
@@ -231,8 +260,12 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
     userAgent = [NSString stringWithFormat:@"%@/%@ (Mac OS X %@)", [[NSBundle mainBundle] infoDictionary][(__bridge NSString *)kCFBundleExecutableKey] ?: [[NSBundle mainBundle] infoDictionary][(__bridge NSString *)kCFBundleIdentifierKey], [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] ?: [[NSBundle mainBundle] infoDictionary][(__bridge NSString *)kCFBundleVersionKey], [[NSProcessInfo processInfo] operatingSystemVersionString]];
 #endif
 #pragma clang diagnostic pop
+    //AFNetworkingStudy/1.0 (iPhone; iOS 10.1; Scale/3.00)
     if (userAgent) {
+#pragma warning (enable: 6011) - 不理解
+        // 不知道为什么要这么做
         if (![userAgent canBeConvertedToEncoding:NSASCIIStringEncoding]) {
+            // 不能转换成ASCII，不理解这段代码作用
             NSMutableString *mutableUserAgent = [userAgent mutableCopy];
             if (CFStringTransform((__bridge CFMutableStringRef)(mutableUserAgent), NULL, (__bridge CFStringRef)@"Any-Latin; Latin-ASCII; [:^ASCII:] Remove", false)) {
                 userAgent = mutableUserAgent;
@@ -344,6 +377,7 @@ forHTTPHeaderField:(NSString *)field
 
 #pragma mark -
 
+// 根据 方法，url，参数构造request，核心方法吧，生产出request
 - (NSMutableURLRequest *)requestWithMethod:(NSString *)method
                                  URLString:(NSString *)URLString
                                 parameters:(id)parameters
@@ -356,15 +390,19 @@ forHTTPHeaderField:(NSString *)field
 
     NSParameterAssert(url);
 
+    // 构建 request对象
     NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url];
+    // GET， POST等方法
     mutableRequest.HTTPMethod = method;
 
+    // 设置请求头，数组里存的是request里的属性，self class也有相应的字段对应request，设置了self class,也就设置了request，但是专门有一个字典是来管理header 的mutableHTTPRequestHeaders来管理header的key 和value的
     for (NSString *keyPath in AFHTTPRequestSerializerObservedKeyPaths()) {
         if ([self.mutableObservedChangedKeyPaths containsObject:keyPath]) {
             [mutableRequest setValue:[self valueForKeyPath:keyPath] forKey:keyPath];
         }
     }
 
+    // 格式化参数, e.g : name=wang&password=123456，但是为什么要mutableCopy下呢？这句代码之前，之后，mutableRequest不就是同一个对象了，产生了一个新的NSMutableURLRequest对象
     mutableRequest = [[self requestBySerializingRequest:mutableRequest withParameters:parameters error:error] mutableCopy];
 
 	return mutableRequest;
@@ -463,6 +501,7 @@ forHTTPHeaderField:(NSString *)field
 
 #pragma mark - AFURLRequestSerialization
 
+// 根据parameter再次完善request
 - (NSURLRequest *)requestBySerializingRequest:(NSURLRequest *)request
                                withParameters:(id)parameters
                                         error:(NSError *__autoreleasing *)error
@@ -471,14 +510,17 @@ forHTTPHeaderField:(NSString *)field
 
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
 
+    // 首先是添加http header
     [self.HTTPRequestHeaders enumerateKeysAndObjectsUsingBlock:^(id field, id value, BOOL * __unused stop) {
         if (![request valueForHTTPHeaderField:field]) {
             [mutableRequest setValue:value forHTTPHeaderField:field];
         }
     }];
 
+    // 构造查询字符串，例如name=wang&password=123456
     NSString *query = nil;
     if (parameters) {
+        // 自定义的查询字符串格式化block，例如可以用来提交json格式的
         if (self.queryStringSerialization) {
             NSError *serializationError;
             query = self.queryStringSerialization(request, parameters, &serializationError);
@@ -491,6 +533,7 @@ forHTTPHeaderField:(NSString *)field
                 return nil;
             }
         } else {
+            // 默认的查询字符串格式化，即 name=wang&password=123456
             switch (self.queryStringSerializationStyle) {
                 case AFHTTPRequestQueryStringDefaultStyle:
                     query = AFQueryStringFromParameters(parameters);
@@ -499,15 +542,18 @@ forHTTPHeaderField:(NSString *)field
         }
     }
 
+    // 当方法为"GET", @"HEAD", @"DELETE",把query string 拼接在url后面 http://localhost:8080/login?name=wang&password=123456
     if ([self.HTTPMethodsEncodingParametersInURI containsObject:[[request HTTPMethod] uppercaseString]]) {
         if (query && query.length > 0) {
             mutableRequest.URL = [NSURL URLWithString:[[mutableRequest.URL absoluteString] stringByAppendingFormat:mutableRequest.URL.query ? @"&%@" : @"?%@", query]];
         }
     } else {
         // #2864: an empty string is a valid x-www-form-urlencoded payload
+        // POST 方法会走这个分支
         if (!query) {
             query = @"";
         }
+        // 设置body
         if (![mutableRequest valueForHTTPHeaderField:@"Content-Type"]) {
             [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
         }
