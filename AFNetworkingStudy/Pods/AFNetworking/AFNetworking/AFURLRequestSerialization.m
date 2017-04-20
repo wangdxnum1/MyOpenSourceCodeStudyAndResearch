@@ -275,8 +275,10 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
     }
 
     // HTTP Method Definitions; see http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+    // 查询字符串要加载uri里的方法
     self.HTTPMethodsEncodingParametersInURI = [NSSet setWithObjects:@"GET", @"HEAD", @"DELETE", nil];
 
+    // 监听自己部分属性的变化的时候，应该要去操作request相应的属性值
     self.mutableObservedChangedKeyPaths = [NSMutableSet set];
     for (NSString *keyPath in AFHTTPRequestSerializerObservedKeyPaths()) {
         if ([self respondsToSelector:NSSelectorFromString(keyPath)]) {
@@ -288,6 +290,7 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
 }
 
 - (void)dealloc {
+    // 移除kvo
     for (NSString *keyPath in AFHTTPRequestSerializerObservedKeyPaths()) {
         if ([self respondsToSelector:NSSelectorFromString(keyPath)]) {
             [self removeObserver:self forKeyPath:keyPath context:AFHTTPRequestSerializerObserverContext];
@@ -300,6 +303,7 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
 // Workarounds for crashing behavior using Key-Value Observing with XCTest
 // See https://github.com/AFNetworking/AFNetworking/issues/2523
 
+// 自己手动触发kvo，这些属性在request上也会有，外部操作这个self，self里面再去操作自己的成员变量
 - (void)setAllowsCellularAccess:(BOOL)allowsCellularAccess {
     [self willChangeValueForKey:NSStringFromSelector(@selector(allowsCellularAccess))];
     _allowsCellularAccess = allowsCellularAccess;
@@ -338,39 +342,47 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
 
 #pragma mark -
 
+// 返回所有用户设置的HTTP 请求头
 - (NSDictionary *)HTTPRequestHeaders {
     return [NSDictionary dictionaryWithDictionary:self.mutableHTTPRequestHeaders];
 }
 
+// 设置HTTP 请求头
 - (void)setValue:(NSString *)value
 forHTTPHeaderField:(NSString *)field
 {
 	[self.mutableHTTPRequestHeaders setValue:value forKey:field];
 }
 
+// 返回相应字段请求头的值
 - (NSString *)valueForHTTPHeaderField:(NSString *)field {
     return [self.mutableHTTPRequestHeaders valueForKey:field];
 }
 
+// 设置Authorization ，用户名和秘密
 - (void)setAuthorizationHeaderFieldWithUsername:(NSString *)username
                                        password:(NSString *)password
 {
     NSData *basicAuthCredentials = [[NSString stringWithFormat:@"%@:%@", username, password] dataUsingEncoding:NSUTF8StringEncoding];
+    // base64 编码
     NSString *base64AuthCredentials = [basicAuthCredentials base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)0];
     [self setValue:[NSString stringWithFormat:@"Basic %@", base64AuthCredentials] forHTTPHeaderField:@"Authorization"];
 }
 
+// 清除Authorization http头
 - (void)clearAuthorizationHeader {
 	[self.mutableHTTPRequestHeaders removeObjectForKey:@"Authorization"];
 }
 
 #pragma mark -
 
+// 设置查询字符串序列化的方式，并且会情况自定义序列化的block
 - (void)setQueryStringSerializationWithStyle:(AFHTTPRequestQueryStringSerializationStyle)style {
     self.queryStringSerializationStyle = style;
     self.queryStringSerialization = nil;
 }
 
+// 设置自定义序列化的block
 - (void)setQueryStringSerializationWithBlock:(NSString *(^)(NSURLRequest *, id, NSError *__autoreleasing *))block {
     self.queryStringSerialization = block;
 }
@@ -565,6 +577,7 @@ forHTTPHeaderField:(NSString *)field
 
 #pragma mark - NSKeyValueObserving
 
+// 重写这个方法，有些字段的kvo不自动触发，self 自己来触发们虽然不知道为什么这样子搞
 + (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key {
     if ([AFHTTPRequestSerializerObservedKeyPaths() containsObject:key]) {
         return NO;
@@ -573,6 +586,7 @@ forHTTPHeaderField:(NSString *)field
     return [super automaticallyNotifiesObserversForKey:key];
 }
 
+// kvo 监听相关keypath 的比哪壶
 - (void)observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(__unused id)object
                         change:(NSDictionary *)change
@@ -589,10 +603,12 @@ forHTTPHeaderField:(NSString *)field
 
 #pragma mark - NSSecureCoding
 
+// class 支持序列化
 + (BOOL)supportsSecureCoding {
     return YES;
 }
 
+// 反序列化
 - (instancetype)initWithCoder:(NSCoder *)decoder {
     self = [self init];
     if (!self) {
@@ -605,6 +621,7 @@ forHTTPHeaderField:(NSString *)field
     return self;
 }
 
+// 序列化,HTTP请求头,查询字符串
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:self.mutableHTTPRequestHeaders forKey:NSStringFromSelector(@selector(mutableHTTPRequestHeaders))];
     [coder encodeInteger:self.queryStringSerializationStyle forKey:NSStringFromSelector(@selector(queryStringSerializationStyle))];
@@ -612,6 +629,7 @@ forHTTPHeaderField:(NSString *)field
 
 #pragma mark - NSCopying
 
+// 支持copy
 - (instancetype)copyWithZone:(NSZone *)zone {
     AFHTTPRequestSerializer *serializer = [[[self class] allocWithZone:zone] init];
     serializer.mutableHTTPRequestHeaders = [self.mutableHTTPRequestHeaders mutableCopyWithZone:zone];
