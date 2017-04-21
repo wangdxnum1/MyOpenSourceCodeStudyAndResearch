@@ -1137,7 +1137,7 @@ NSTimeInterval const kAFUploadStream3GSuggestedDelay = 0.2;
 }
 
 #pragma mark - NSCopying
-
+// copy 函数
 - (instancetype)copyWithZone:(NSZone *)zone {
     AFMultipartBodyStream *bodyStreamCopy = [[[self class] allocWithZone:zone] initWithStringEncoding:self.stringEncoding];
 
@@ -1154,6 +1154,7 @@ NSTimeInterval const kAFUploadStream3GSuggestedDelay = 0.2;
 
 #pragma mark -
 
+// part body 4部分枚举值
 typedef enum {
     AFEncapsulationBoundaryPhase = 1,
     AFHeaderPhase                = 2,
@@ -1167,7 +1168,10 @@ typedef enum {
     unsigned long long _phaseReadOffset;
 }
 
+// 切换状态
 - (BOOL)transitionToNextPhase;
+
+// 读取数据
 - (NSInteger)readData:(NSData *)data
            intoBuffer:(uint8_t *)buffer
             maxLength:(NSUInteger)length;
@@ -1281,16 +1285,19 @@ typedef enum {
 {
     NSInteger totalNumberOfBytesRead = 0;
 
+    // 开始分割线
     if (_phase == AFEncapsulationBoundaryPhase) {
         NSData *encapsulationBoundaryData = [([self hasInitialBoundary] ? AFMultipartFormInitialBoundary(self.boundary) : AFMultipartFormEncapsulationBoundary(self.boundary)) dataUsingEncoding:self.stringEncoding];
         totalNumberOfBytesRead += [self readData:encapsulationBoundaryData intoBuffer:&buffer[totalNumberOfBytesRead] maxLength:(length - (NSUInteger)totalNumberOfBytesRead)];
     }
 
+    // part 的header部分
     if (_phase == AFHeaderPhase) {
         NSData *headersData = [[self stringForHeaders] dataUsingEncoding:self.stringEncoding];
         totalNumberOfBytesRead += [self readData:headersData intoBuffer:&buffer[totalNumberOfBytesRead] maxLength:(length - (NSUInteger)totalNumberOfBytesRead)];
     }
 
+    // 内容部分，比如文件的二进制数据，防止文件过大没用流的方式
     if (_phase == AFBodyPhase) {
         NSInteger numberOfBytesRead = 0;
 
@@ -1306,6 +1313,7 @@ typedef enum {
         }
     }
 
+    // 结束标记
     if (_phase == AFFinalBoundaryPhase) {
         NSData *closingBoundaryData = ([self hasFinalBoundary] ? [AFMultipartFormFinalBoundary(self.boundary) dataUsingEncoding:self.stringEncoding] : [NSData data]);
         totalNumberOfBytesRead += [self readData:closingBoundaryData intoBuffer:&buffer[totalNumberOfBytesRead] maxLength:(length - (NSUInteger)totalNumberOfBytesRead)];
