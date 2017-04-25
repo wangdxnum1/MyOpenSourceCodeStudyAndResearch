@@ -31,11 +31,15 @@
 #import <Cocoa/Cocoa.h>
 #endif
 
+// 全局字符串的定义
+// response 序列化错误
 NSString * const AFURLResponseSerializationErrorDomain = @"com.alamofire.error.serialization.response";
 NSString * const AFNetworkingOperationFailingURLResponseErrorKey = @"com.alamofire.serialization.response.error.response";
 NSString * const AFNetworkingOperationFailingURLResponseDataErrorKey = @"com.alamofire.serialization.response.error.data";
 
+// c方法
 static NSError * AFErrorWithUnderlyingError(NSError *error, NSError *underlyingError) {
+    // 如果
     if (!error) {
         return underlyingError;
     }
@@ -85,6 +89,7 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
     return JSONObject;
 }
 
+// AFHTTPResponseSerializer,返回的是二进制数据
 @implementation AFHTTPResponseSerializer
 
 + (instancetype)serializer {
@@ -97,8 +102,10 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
         return nil;
     }
 
+    // 默认配置的AFHTTPResponseSerializer
     self.stringEncoding = NSUTF8StringEncoding;
 
+    // 200-300 的值？待确定
     self.acceptableStatusCodes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(200, 100)];
     self.acceptableContentTypes = nil;
 
@@ -107,17 +114,23 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
 
 #pragma mark -
 
+// 检查数据格式
 - (BOOL)validateResponse:(NSHTTPURLResponse *)response
                     data:(NSData *)data
                    error:(NSError * __autoreleasing *)error
 {
+    // 表示response 是有效的
     BOOL responseIsValid = YES;
+    // 验证的error
     NSError *validationError = nil;
 
+    // 判断response 即response的类型，毕竟是动态语言，可以传任意类型
     if (response && [response isKindOfClass:[NSHTTPURLResponse class]]) {
         if (self.acceptableContentTypes && ![self.acceptableContentTypes containsObject:[response MIMEType]] &&
             !([response MIMEType] == nil && [data length] == 0)) {
 
+            // 表示不是可以接受的类型，报错
+            // 为什么要加一个[response URL]呢？
             if ([data length] > 0 && [response URL]) {
                 NSMutableDictionary *mutableUserInfo = [@{
                                                           NSLocalizedDescriptionKey: [NSString stringWithFormat:NSLocalizedStringFromTable(@"Request failed: unacceptable content-type: %@", @"AFNetworking", nil), [response MIMEType]],

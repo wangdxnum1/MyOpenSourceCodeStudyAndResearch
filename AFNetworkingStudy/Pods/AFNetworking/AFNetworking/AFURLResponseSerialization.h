@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  The response object decoded from the data associated with a specified response.
-
+ 解析response 数据，子类实现具体格式的解析方法，比如json
  @param response The response to be processed.
  @param data The response data to be decoded.
  @param error The error that occurred while attempting to decode the response data.
@@ -59,11 +59,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  The string encoding used to serialize data received from the server, when no string encoding is specified by the response. `NSUTF8StringEncoding` by default.
+ 默认是utf-8
  */
 @property (nonatomic, assign) NSStringEncoding stringEncoding;
 
 /**
  Creates and returns a serializer with default configuration.
+ 静态方法获取默认配置的response 序列化对象
  */
 + (instancetype)serializer;
 
@@ -75,17 +77,19 @@ NS_ASSUME_NONNULL_BEGIN
  The acceptable HTTP status codes for responses. When non-`nil`, responses with status codes not contained by the set will result in an error during validation.
 
  See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+ 可接受的status http code
  */
 @property (nonatomic, copy, nullable) NSIndexSet *acceptableStatusCodes;
 
 /**
  The acceptable MIME types for responses. When non-`nil`, responses with a `Content-Type` with MIME types that do not intersect with the set will result in an error during validation.
+ 可接受的数据类型Content-Type
  */
 @property (nonatomic, copy, nullable) NSSet <NSString *> *acceptableContentTypes;
 
 /**
  Validates the specified response and data.
-
+ 检查response 的statsu cdoe 和 content type
  In its base implementation, this method checks for an acceptable status code and content type. Subclasses may wish to add other domain-specific checks.
 
  @param response The response to be validated.
