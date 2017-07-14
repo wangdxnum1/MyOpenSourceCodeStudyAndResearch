@@ -10,6 +10,7 @@
 
 @interface LazyScrollViewCustomView : UILabel<TMMuiLazyScrollViewCellProtocol>
 
+
 @end
 
 @implementation LazyScrollViewCustomView
@@ -28,6 +29,15 @@
 {
     NSLog(@"%@", [NSString stringWithFormat:@"%@ - AfterGetView",self.text]);
 }
+
+- (void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+}
+
+- (void)didMoveToSuperview{
+    [super didMoveToSuperview];
+    
+}
 @end
 
 
@@ -35,6 +45,7 @@
 {
     NSMutableArray * rectArray;
 }
+@property (nonatomic, weak) TMMuiLazyScrollView *scrollView;
 @end
 
 @implementation ViewController
@@ -47,7 +58,7 @@
     scrollview.dataSource = self;
     
     [self.view addSubview:scrollview];
-    
+    self.scrollView = scrollview;
     
     //Here is frame array for test.
     //LazyScrollView must know every rect before rending.
@@ -124,6 +135,9 @@
     NSLog(@"Click - %@",label.muiID);
 }
 
+- (IBAction)reloadData:(UIBarButtonItem *)sender {
+    [self.scrollView reloadData ];
+}
 
 
 
